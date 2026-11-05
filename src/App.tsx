@@ -1,5 +1,5 @@
 import { AnimatePresence, LayoutGroup, motion, MotionConfig } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { I18nProvider, useT } from './i18n';
 import { applyTheme, setAppBadge, useDeckCounts, useDecks, useSettings } from './state';
 import { ToastProvider } from './ui/components';
@@ -11,6 +11,9 @@ import { SettingsScreen } from './screens/Settings';
 import { Reviewer } from './screens/Reviewer';
 import { totalCounts } from './db/queue';
 import { requestPersistentStorage } from './db/schema';
+
+// The chat pulls in the Claude SDK; load it only when opened.
+const ChatScreen = lazy(() => import('./screens/ChatScreen').then((m) => ({ default: m.ChatScreen })));
 
 export type Tab = 'home' | 'study' | 'stats' | 'settings';
 
@@ -47,6 +50,7 @@ function Shell({ dayStartHour }: { dayStartHour: number }) {
   const { t } = useT();
   const [tab, setTab] = useState<Tab>('home');
   const [study, setStudy] = useState<StudyRequest | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
   const decks = useDecks();
   const counts = useDeckCounts(dayStartHour);
   const topIds = useMemo(() => (decks ?? []).filter((d) => !d.parentId).map((d) => d.id), [decks]);
@@ -75,10 +79,10 @@ function Shell({ dayStartHour }: { dayStartHour: number }) {
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.18 }}
         >
-          {tab === 'home' && <HomeScreen decks={decks} counts={counts} total={total} onStudy={startStudy} />}
+          {tab === 'home' && <HomeScreen decks={decks} counts={counts} total={total} onStudy={startStudy} onCreateAi={() => setChatOpen(true)} />}
           {tab === 'study' && <StudyScreen decks={decks} counts={counts} total={total} onStudy={startStudy} />}
           {tab === 'stats' && <StatsScreen dayStartHour={dayStartHour} />}
-          {tab === 'settings' && <SettingsScreen />}
+          {tab === 'settings' && <SettingsScreen onOpenChat={() => setChatOpen(true)} />}
         </motion.main>
       </AnimatePresence>
 
@@ -95,6 +99,11 @@ function Shell({ dayStartHour }: { dayStartHour: number }) {
         </LayoutGroup>
       </nav>
 
+      {chatOpen && (
+        <Suspense fallback={null}>
+          <ChatScreen decks={decks ?? []} onExit={() => setChatOpen(false)} />
+        </Suspense>
+      )}
       {study && <Reviewer key={study.deckId ?? 'all'} deckId={study.deckId} onExit={() => setStudy(null)} />}
     </div>
   );

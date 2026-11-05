@@ -89,6 +89,8 @@ export interface Settings {
   aiModel: string;
   onboardingDone: boolean;
   lastBackupAt: number;
+  /** Running estimate of what the AI chat has cost on this device (USD). */
+  aiSpentUsd: number;
 }
 
 export function defaultSettings(): Settings {
@@ -105,5 +107,73 @@ export function defaultSettings(): Settings {
     aiModel: 'claude-sonnet-5-5',
     onboardingDone: false,
     lastBackupAt: 0,
+    aiSpentUsd: 0,
   };
+}
+
+/* ---------- AI chat ---------- */
+
+export interface ChatImage {
+  mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
+  /** Base64 without the data: prefix. */
+  data: string;
+}
+
+export interface DraftCard {
+  id: string;
+  type: NoteType;
+  front: string;
+  back: string;
+  note: string;
+  text: string;
+  extra: string;
+  reverse: boolean;
+}
+
+export interface ChatDraft {
+  deck: string;
+  tags: string[];
+  cards: DraftCard[];
+}
+
+export interface ChatUsage {
+  model: string;
+  input: number;
+  output: number;
+  cacheRead: number;
+  cacheWrite: number;
+  costUsd: number;
+}
+
+export interface ChatMessage {
+  id: string;
+  /** "notice" lines are local only (e.g. "12 cards imported") and are never sent to the API. */
+  role: 'user' | 'assistant' | 'notice';
+  /** What the learner sees in the bubble. */
+  text: string;
+  createdAt: number;
+  /** user: the exact text sent to the API (learner text + app context). */
+  apiText?: string;
+  images?: ChatImage[];
+  /** assistant: raw content blocks, replayed unchanged so thinking blocks stay valid. */
+  content?: unknown[];
+  action?: 'replace' | 'append' | 'none';
+  cardCount?: number;
+  suggestions?: string[];
+  usage?: ChatUsage;
+  /** assistant: the draft before this turn was applied (used by "regenerate"). */
+  prevDraft?: ChatDraft;
+}
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  draft: ChatDraft;
+  /** Fingerprint of the draft as the model last saw it; context is resent only when it changes. */
+  draftSeen: string;
+  /** Pending one-off context for the next turn (e.g. that the draft was imported). */
+  pendingNotice: string;
+  createdAt: number;
+  updatedAt: number;
 }
