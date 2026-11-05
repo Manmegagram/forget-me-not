@@ -1,15 +1,16 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Deck } from '../db/types';
 import { parseImport, type ParsedImport } from '../db/import';
 import { useT, type StringKey } from '../i18n';
 import { Sheet } from '../ui/components';
 import { ImportReview } from './ImportReview';
+import { resolveImportText } from '../db/importLink';
 
 /**
  * Paste or open JSON -> preview table -> resolve duplicates -> import.
  * The AI chat reuses the same ImportReview step for its drafts.
  */
-export function ImportSheet({ open, onClose, decks }: { open: boolean; onClose: () => void; decks: Deck[] }) {
+export function ImportSheet({ open, onClose, decks, initialText }: { open: boolean; onClose: () => void; decks: Deck[]; initialText?: string }) {
   const { t } = useT();
   const fileRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState('');
@@ -24,12 +25,26 @@ export function ImportSheet({ open, onClose, decks }: { open: boolean; onClose: 
     onClose();
   };
 
-  const preview = (source = text) => setParsed(parseImport(source));
+  const preview = async (source = text) => {
+    // Accepts pasted import links (https://…/#import=…) as well as raw JSON.
+    const resolved = await resolveImportText(source);
+    if (resolved !== source) setText(resolved);
+    setParsed(parseImport(resolved));
+  };
+
+  // Opened from an import link: go straight to the preview.
+  useEffect(() => {
+    if (open && initialText) {
+      setText(initialText);
+      void preview(initialText);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialText]);
 
   const onFile = async (file: File) => {
     const content = await file.text();
     setText(content);
-    preview(content);
+    await preview(content);
   };
 
   return (
@@ -67,7 +82,7 @@ export function ImportSheet({ open, onClose, decks }: { open: boolean; onClose: 
           <div className="row">
             <input ref={fileRef} type="file" accept=".json,application/json,text/plain" hidden onChange={(e) => e.target.files?.[0] && void onFile(e.target.files[0])} />
             <button className="btn block" onClick={() => fileRef.current?.click()}>{t('importFile')}</button>
-            <button className="btn primary block" disabled={!text.trim()} onClick={() => preview()}>{t('importParse')}</button>
+            <button className="btn primary block" disabled={!text.trim()} onClick={() => void preview()}>{t('importParse')}</button>
           </div>
         </>
       ) : (

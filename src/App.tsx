@@ -11,6 +11,8 @@ import { SettingsScreen } from './screens/Settings';
 import { Reviewer } from './screens/Reviewer';
 import { totalCounts } from './db/queue';
 import { requestPersistentStorage } from './db/schema';
+import { decodeImportPayload, findImportPayload } from './db/importLink';
+import { ImportSheet } from './screens/ImportSheet';
 
 // The chat pulls in the Claude SDK; load it only when opened.
 const ChatScreen = lazy(() => import('./screens/ChatScreen').then((m) => ({ default: m.ChatScreen })));
@@ -51,6 +53,22 @@ function Shell({ dayStartHour }: { dayStartHour: number }) {
   const [tab, setTab] = useState<Tab>('home');
   const [study, setStudy] = useState<StudyRequest | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
+  const [linkImport, setLinkImport] = useState<string | null>(null);
+
+  // Import links: https://…/forget-me-not/#import=<base64url JSON>. Decode, show the preview, clear the hash.
+  useEffect(() => {
+    const check = () => {
+      const payload = findImportPayload(window.location.hash);
+      if (!payload) return;
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      void decodeImportPayload(payload)
+        .then((json) => setLinkImport(json))
+        .catch(() => setLinkImport(''));
+    };
+    check();
+    window.addEventListener('hashchange', check);
+    return () => window.removeEventListener('hashchange', check);
+  }, []);
   const decks = useDecks();
   const counts = useDeckCounts(dayStartHour);
   const topIds = useMemo(() => (decks ?? []).filter((d) => !d.parentId).map((d) => d.id), [decks]);
@@ -99,6 +117,7 @@ function Shell({ dayStartHour }: { dayStartHour: number }) {
         </LayoutGroup>
       </nav>
 
+      <ImportSheet open={linkImport !== null} initialText={linkImport ?? undefined} onClose={() => setLinkImport(null)} decks={decks ?? []} />
       {chatOpen && (
         <Suspense fallback={null}>
           <ChatScreen decks={decks ?? []} onExit={() => setChatOpen(false)} />

@@ -46,6 +46,16 @@
 
 ใส่ Markdown พื้นฐาน (`**ตัวหนา**`, `*เอียง*`, รายการ `-`), รูป `![](https://...)` และสูตร `$...$` / `$$...$$` ได้ ชื่อ Deck ใช้ `A::B` เพื่อสร้าง sub-deck ตัวอย่างไฟล์อยู่ที่ [`samples/starter-deck.json`](samples/starter-deck.json)
 
+### ลิงก์นำเข้าการ์ด
+
+`https://manmegagram.github.io/forget-me-not/#import=<payload>` โดย `<payload>` คือ JSON รูปแบบด้านบน เข้ารหัสเป็น base64url (UTF-8) จะ gzip ก่อนเข้ารหัสก็ได้ (แอปตรวจจาก magic bytes เอง) เปิดลิงก์แล้วจะขึ้นหน้าพรีวิวให้กดอนุมัติ
+
+บน iPhone ลิงก์จะเปิดใน Safari ไม่ใช่แอปบนหน้าจอโฮม (ข้อมูลแยกกัน) จึงควรกดค้างที่ลิงก์ → คัดลอก แล้วในแอปกด **นำเข้า JSON → วางจากคลิปบอร์ด → พรีวิว**
+
+```bash
+node -e 'const z=require("zlib");const j=require("fs").readFileSync(process.argv[1]);console.log("https://manmegagram.github.io/forget-me-not/#import="+z.gzipSync(j).toString("base64url"))' lesson.json
+```
+
 ## สำหรับนักพัฒนา
 
 ```bash
