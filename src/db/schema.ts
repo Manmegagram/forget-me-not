@@ -1,7 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 import type { DeckConfig } from '../srs/types';
 import { defaultDeckConfig } from '../srs/config';
-import type { Card, Deck, Note, ReviewLog, Settings } from './types';
+import type { Card, ChatSession, Deck, Note, ReviewLog, Settings } from './types';
 import { defaultSettings } from './types';
 
 export class ForgetMeNotDB extends Dexie {
@@ -11,6 +11,7 @@ export class ForgetMeNotDB extends Dexie {
   reviewLogs!: Table<ReviewLog, string>;
   configs!: Table<DeckConfig, string>;
   settings!: Table<Settings, string>;
+  chatSessions!: Table<ChatSession, string>;
 
   constructor(name = 'forget-me-not') {
     super(name);
@@ -22,6 +23,7 @@ export class ForgetMeNotDB extends Dexie {
       configs: 'id',
       settings: 'key',
     });
+    this.version(2).stores({ chatSessions: 'id, updatedAt' });
     this.on('populate', (tx) => {
       tx.table('configs').add(defaultDeckConfig());
       tx.table('settings').add(defaultSettings());

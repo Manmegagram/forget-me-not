@@ -69,6 +69,22 @@ export const IconSpark = ({ size, ...p }: P) => (
   <svg {...base(size)} {...p}><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" /><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z" /></svg>
 );
 
+export const IconImage = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}><rect x="3.5" y="5" width="17" height="14" rx="2.5" /><circle cx="9" cy="10" r="1.6" /><path d="m20.5 16-4.5-4.5L7 19" /></svg>
+);
+export const IconSend = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}><path d="M12 19V5" /><path d="m6 11 6-6 6 6" /></svg>
+);
+export const IconStop = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor" /></svg>
+);
+export const IconCopy = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}><rect x="8.5" y="8.5" width="11" height="11" rx="2.5" /><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2" /></svg>
+);
+export const IconHistory = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5" /><path d="M4 4v4.5h4.5" /><path d="M12 8v4.5l3 2" /></svg>
+);
+
 /** Five-petal forget-me-not used as the brand mark and empty-state art. */
 export function FlowerMark({ size = 120, className }: { size?: number; className?: string }) {
   const petals = [0, 72, 144, 216, 288];

@@ -9,8 +9,10 @@ import { IconChevron } from '../ui/icons';
 import { DeckOptionsSheet } from './DeckOptions';
 import { createConfig } from '../db/repo';
 import { defaultDeckConfig } from '../srs';
+import { AI_MODELS, formatUsd, getAiModel } from '../ai/models';
+import { AiKeySheet, maskKey } from './AiKeySheet';
 
-export function SettingsScreen() {
+export function SettingsScreen({ onOpenChat }: { onOpenChat: () => void }) {
   const { t } = useT();
   const settings = useSettings();
   const configs = useConfigs();
@@ -18,6 +20,7 @@ export function SettingsScreen() {
   const [presetId, setPresetId] = useState<string | null>(null);
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [wipe, setWipe] = useState(false);
+  const [keyOpen, setKeyOpen] = useState(false);
 
   useEffect(() => {
     void navigator.storage?.persisted?.().then(setPersisted).catch(() => setPersisted(false));
@@ -72,6 +75,38 @@ export function SettingsScreen() {
         </label>
       </div>
 
+      <h2 className="section-title">{t('aiSection')}</h2>
+      <div className="glass list">
+        <button className="list-item button" onClick={() => setKeyOpen(true)}>
+          <span className="label">{t('aiKeyTitle')}</span>
+          <span className="value mono">{settings.apiKey ? maskKey(settings.apiKey) : t('aiKeyNotSet')}</span>
+          <IconChevron className="chevron" />
+        </button>
+        <label className="list-item">
+          <span className="label">{t('aiModel')}</span>
+          <select
+            className="select"
+            style={{ width: 190, minHeight: 36 }}
+            value={getAiModel(settings.aiModel).id}
+            onChange={(e) => void updateSettings({ aiModel: e.target.value })}
+          >
+            {AI_MODELS.map((m) => (
+              <option key={m.id} value={m.id}>{m.label}</option>
+            ))}
+          </select>
+        </label>
+        <div className="list-item">
+          <span className="label">{t('aiSpent')}</span>
+          <span className="value">{formatUsd(settings.aiSpentUsd ?? 0)}</span>
+          {(settings.aiSpentUsd ?? 0) > 0 && (
+            <button className="btn small plain" onClick={() => void updateSettings({ aiSpentUsd: 0 })}>{t('aiSpentReset')}</button>
+          )}
+        </div>
+        <button className="list-item button" style={{ color: 'var(--blue)' }} onClick={onOpenChat}>
+          {t('createWithAi')}
+        </button>
+      </div>
+
       <h2 className="section-title">{t('presets')}</h2>
       <div className="glass list">
         {configs.map((c) => (
@@ -111,6 +146,7 @@ export function SettingsScreen() {
         </div>
       </div>
 
+      <AiKeySheet open={keyOpen} onClose={() => setKeyOpen(false)} />
       <DeckOptionsSheet deck={null} presetId={presetId} onClose={() => setPresetId(null)} decks={decks} />
       <ConfirmSheet
         open={wipe}
@@ -120,8 +156,8 @@ export function SettingsScreen() {
         danger
         onCancel={() => setWipe(false)}
         onConfirm={async () => {
-          await db.transaction('rw', [db.decks, db.notes, db.cards, db.reviewLogs], async () => {
-            await Promise.all([db.decks.clear(), db.notes.clear(), db.cards.clear(), db.reviewLogs.clear()]);
+          await db.transaction('rw', [db.decks, db.notes, db.cards, db.reviewLogs, db.chatSessions], async () => {
+            await Promise.all([db.decks.clear(), db.notes.clear(), db.cards.clear(), db.reviewLogs.clear(), db.chatSessions.clear()]);
           });
           setWipe(false);
         }}

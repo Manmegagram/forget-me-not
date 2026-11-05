@@ -5,7 +5,7 @@ import { createDeck, deckFullName, deleteDeck, descendantDeckIds, moveDeck, rena
 import { db } from '../db/schema';
 import { useT } from '../i18n';
 import { ConfirmSheet, EmptyState, Menu, PressButton, Sheet, useToast } from '../ui/components';
-import { FlowerMark, IconFolder, IconImport, IconMore, IconPlus, IconSettings, IconStudy, IconTrash, IconEdit } from '../ui/icons';
+import { FlowerMark, IconSpark, IconChevron, IconFolder, IconImport, IconMore, IconPlus, IconSettings, IconStudy, IconTrash, IconEdit } from '../ui/icons';
 import { DeckTree } from './DeckTree';
 import { ImportSheet } from './ImportSheet';
 import { DeckOptionsSheet } from './DeckOptions';
@@ -15,11 +15,13 @@ export function HomeScreen({
   counts,
   total,
   onStudy,
+  onCreateAi,
 }: {
   decks?: Deck[];
   counts?: Map<string, DeckCounts>;
   total: DeckCounts;
   onStudy: (deckId: string | null) => void;
+  onCreateAi: () => void;
 }) {
   const { t } = useT();
   const toast = useToast();
@@ -85,6 +87,17 @@ export function HomeScreen({
         </section>
       )}
 
+      {decks && decks.length > 0 && (
+        <button className="glass ai-cta" onClick={onCreateAi}>
+          <span className="ai-cta-icon"><IconSpark size={22} /></span>
+          <span className="ai-cta-text">
+            <span className="headline">{t('createWithAi')}</span>
+            <span className="footnote secondary">{t('aiCtaBody')}</span>
+          </span>
+          <IconChevron className="chevron" />
+        </button>
+      )}
+
       <div className="row" style={{ padding: '20px 8px 8px' }}>
         <h2 className="section-title" style={{ padding: 0, flex: 1 }}>{t('decks')}</h2>
         <button className="btn small" onClick={() => openName('create')}>
@@ -94,9 +107,14 @@ export function HomeScreen({
 
       {decks === undefined ? null : decks.length === 0 ? (
         <EmptyState art={<FlowerMark />} title={t('emptyDecksTitle')} body={t('emptyDecksBody')}>
-          <button className="btn primary" onClick={() => setImportOpen(true)}>
-            <IconImport size={20} /> {t('importJson')}
-          </button>
+          <div className="stack" style={{ width: '100%', maxWidth: 320 }}>
+            <button className="btn primary block" onClick={onCreateAi}>
+              <IconSpark size={20} /> {t('createWithAi')}
+            </button>
+            <button className="btn block" onClick={() => setImportOpen(true)}>
+              <IconImport size={20} /> {t('importJson')}
+            </button>
+          </div>
         </EmptyState>
       ) : (
         <DeckTree
