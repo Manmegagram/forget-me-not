@@ -156,7 +156,7 @@ export const en = {
 
   // import
   importTitle: 'Import cards',
-  importPaste: 'Paste JSON here (or text that contains it)',
+  importPaste: 'Paste JSON or an import link here',
   importFile: 'Choose file',
   importParse: 'Preview',
   importFormatHelp: 'Format: { "deck": "Name", "tags": [...], "cards": [{ "front", "back", "note" }] }',
@@ -521,7 +521,7 @@ export const th: Record<StringKey, string> = {
   deletePreset: 'ลบ Preset',
 
   importTitle: 'นำเข้าการ์ด',
-  importPaste: 'วาง JSON ที่นี่ (หรือข้อความที่มี JSON อยู่ข้างใน)',
+  importPaste: 'วาง JSON หรือลิงก์นำเข้าการ์ดที่นี่',
   importFile: 'เลือกไฟล์',
   importParse: 'พรีวิว',
   importFormatHelp: 'รูปแบบ: { "deck": "ชื่อ", "tags": [...], "cards": [{ "front", "back", "note" }] }',

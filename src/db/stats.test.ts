@@ -78,3 +78,20 @@ describe('computeStats', () => {
     expect(s.buttons.learn[1]).toBe(1);
   });
 });
+
+describe('import links', async () => {
+  const { decodeImportPayload, findImportPayload, resolveImportText, bytesToBase64Url } = await import('./importLink');
+  const json = JSON.stringify({ deck: 'English::Lesson 1', cards: [{ front: 'ทดสอบ', back: 'test' }] });
+  const plain = bytesToBase64Url(new TextEncoder().encode(json));
+  it('decodes plain and gzip payloads', async () => {
+    expect(await decodeImportPayload(plain)).toBe(json);
+    const gz = new Uint8Array(await new Response(new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+    expect(await decodeImportPayload(bytesToBase64Url(gz))).toBe(json);
+  });
+  it('finds payloads in pasted links and leaves JSON alone', async () => {
+    const link = `https://manmegagram.github.io/forget-me-not/#import=${plain}`;
+    expect(findImportPayload(link)).toBe(plain);
+    expect(await resolveImportText(link)).toBe(json);
+    expect(await resolveImportText(json)).toBe(json);
+  });
+});
