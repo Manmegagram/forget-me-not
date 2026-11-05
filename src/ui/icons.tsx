@@ -85,6 +85,10 @@ export const IconHistory = ({ size, ...p }: P) => (
   <svg {...base(size)} {...p}><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5" /><path d="M4 4v4.5h4.5" /><path d="M12 8v4.5l3 2" /></svg>
 );
 
+export const IconUnsuspend = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}><circle cx="12" cy="12" r="8.5" /><path d="m10 8.5 5 3.5-5 3.5z" fill="currentColor" /></svg>
+);
+
 /** Five-petal forget-me-not used as the brand mark and empty-state art. */
 export function FlowerMark({ size = 120, className }: { size?: number; className?: string }) {
   const petals = [0, 72, 144, 216, 288];
