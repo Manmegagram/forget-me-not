@@ -1,0 +1,12 @@
+{
+  "deck": "Starter::English Finance",
+  "tags": ["sample", "toeic", "finance"],
+  "cards": [
+    { "front": "Revenue", "back": "รายได้", "note": "Annual **revenue** rose 10% last year." },
+    { "front": "Invoice", "back": "ใบแจ้งหนี้", "note": "Please send the *invoice* by Friday.", "reverse": true, "type": "reverse" },
+    { "front": "Accrual", "back": "accrual", "note": "Type the word you hear: การบันทึกค้างรับ/ค้างจ่าย", "type": "typein" },
+    { "text": "Ohm's law: {{c1::V}} = {{c2::I}} × R", "extra": "$V = IR$ where $R$ is resistance in ohms (Ω)." },
+    { "front": "Stress in a bar under axial load", "back": "$$\\sigma = \\frac{F}{A}$$", "note": "F = force (N), A = cross-section area (m²)" },
+    { "front": "Depreciation", "back": "ค่าเสื่อมราคา", "note": "- Straight-line\n- Declining balance", "type": "optionalReverse", "reverse": true }
+  ]
+}
